@@ -15,7 +15,7 @@ class Plugin(ABC):
         pass
 
     @abstractmethod
-    def get_spec(self) -> [Dict]:
+    def get_spec(self) -> Dict:
         """
         Function specs in the form of JSON schema as specified in the OpenAI documentation:
         https://platform.openai.com/docs/api-reference/chat/create#chat/create-functions
