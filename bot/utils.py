@@ -12,7 +12,7 @@ import telegram
 from telegram import Message, MessageEntity, Update, ChatMember, constants
 from telegram.ext import CallbackContext, ContextTypes
 
-from usage_tracker import UsageTracker
+# from usage_tracker import UsageTracker
 
 
 def message_text(message: Message) -> str:
@@ -267,69 +267,69 @@ def get_user_budget(config, user_id) -> float | None:
     return None
 
 
-def get_remaining_budget(config, usage, update: Update, is_inline=False) -> float:
-    """
-    Calculate the remaining budget for a user based on their current usage.
-    :param config: The bot configuration object
-    :param usage: The usage tracker object
-    :param update: Telegram update object
-    :param is_inline: Boolean flag for inline queries
-    :return: The remaining budget for the user as a float
-    """
-    # Mapping of budget period to cost period
-    budget_cost_map = {
-        "monthly": "cost_month",
-        "daily": "cost_today",
-        "all-time": "cost_all_time",
-    }
+# def get_remaining_budget(config, usage, update: Update, is_inline=False) -> float:
+#     """
+#     Calculate the remaining budget for a user based on their current usage.
+#     :param config: The bot configuration object
+#     :param usage: The usage tracker object
+#     :param update: Telegram update object
+#     :param is_inline: Boolean flag for inline queries
+#     :return: The remaining budget for the user as a float
+#     """
+#     # Mapping of budget period to cost period
+#     budget_cost_map = {
+#         "monthly": "cost_month",
+#         "daily": "cost_today",
+#         "all-time": "cost_all_time",
+#     }
 
-    user_id = (
-        update.inline_query.from_user.id if is_inline else update.message.from_user.id
-    )
-    name = (
-        update.inline_query.from_user.name
-        if is_inline
-        else update.message.from_user.name
-    )
-    if user_id not in usage:
-        usage[user_id] = UsageTracker(user_id, name)
+#     user_id = (
+#         update.inline_query.from_user.id if is_inline else update.message.from_user.id
+#     )
+#     name = (
+#         update.inline_query.from_user.name
+#         if is_inline
+#         else update.message.from_user.name
+#     )
+#     if user_id not in usage:
+#         usage[user_id] = UsageTracker(user_id, name)
 
-    # Get budget for users
-    user_budget = get_user_budget(config, user_id)
-    budget_period = config["budget_period"]
-    if user_budget is not None:
-        cost = usage[user_id].get_current_cost()[budget_cost_map[budget_period]]
-        return user_budget - cost
+#     # Get budget for users
+#     user_budget = get_user_budget(config, user_id)
+#     budget_period = config["budget_period"]
+#     if user_budget is not None:
+#         cost = usage[user_id].get_current_cost()[budget_cost_map[budget_period]]
+#         return user_budget - cost
 
-    # Get budget for guests
-    if "guests" not in usage:
-        usage["guests"] = UsageTracker("guests", "all guest users in group chats")
-    cost = usage["guests"].get_current_cost()[budget_cost_map[budget_period]]
-    return config["guest_budget"] - cost
+#     # Get budget for guests
+#     if "guests" not in usage:
+#         usage["guests"] = UsageTracker("guests", "all guest users in group chats")
+#     cost = usage["guests"].get_current_cost()[budget_cost_map[budget_period]]
+#     return config["guest_budget"] - cost
 
 
-def is_within_budget(config, usage, update: Update, is_inline=False) -> bool:
-    """
-    Checks if the user reached their usage limit.
-    Initializes UsageTracker for user and guest when needed.
-    :param config: The bot configuration object
-    :param usage: The usage tracker object
-    :param update: Telegram update object
-    :param is_inline: Boolean flag for inline queries
-    :return: Boolean indicating if the user has a positive budget
-    """
-    user_id = (
-        update.inline_query.from_user.id if is_inline else update.message.from_user.id
-    )
-    name = (
-        update.inline_query.from_user.name
-        if is_inline
-        else update.message.from_user.name
-    )
-    if user_id not in usage:
-        usage[user_id] = UsageTracker(user_id, name)
-    remaining_budget = get_remaining_budget(config, usage, update, is_inline=is_inline)
-    return remaining_budget > 0
+# def is_within_budget(config, usage, update: Update, is_inline=False) -> bool:
+#     """
+#     Checks if the user reached their usage limit.
+#     Initializes UsageTracker for user and guest when needed.
+#     :param config: The bot configuration object
+#     :param usage: The usage tracker object
+#     :param update: Telegram update object
+#     :param is_inline: Boolean flag for inline queries
+#     :return: Boolean indicating if the user has a positive budget
+#     """
+#     user_id = (
+#         update.inline_query.from_user.id if is_inline else update.message.from_user.id
+#     )
+#     name = (
+#         update.inline_query.from_user.name
+#         if is_inline
+#         else update.message.from_user.name
+#     )
+#     if user_id not in usage:
+#         usage[user_id] = UsageTracker(user_id, name)
+#     remaining_budget = get_remaining_budget(config, usage, update, is_inline=is_inline)
+#     return remaining_budget > 0
 
 
 def add_chat_request_to_usage_tracker(usage, config, user_id, used_tokens):

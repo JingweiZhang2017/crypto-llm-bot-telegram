@@ -22,11 +22,14 @@ class PluginManager:
         """
         Return the list of function specs that can be called by the model
         """
-        return [
-            spec
-            for specs in map(lambda plugin: plugin.get_spec(), self.plugins)
-            for spec in specs
-        ]
+        # return [
+        #     specs
+        #     for specs in map(lambda plugin: plugin.get_spec(), self.plugins)
+        # for spec in specs
+        # ]
+        specs = [plugin.get_spec() for plugin in self.plugins]
+        print(specs)
+        return specs
 
     async def call_function(self, function_name, helper, arguments):
         """

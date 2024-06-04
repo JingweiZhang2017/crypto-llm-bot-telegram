@@ -5,12 +5,13 @@ import os
 
 import openai
 
-import requests
+# import requests
 import json
 import httpx
-import io
-from datetime import date
-from calendar import monthrange
+
+# import io
+# from datetime import date
+# from calendar import monthrange
 
 from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 
@@ -45,84 +46,84 @@ GPT_ALL_MODELS = (
 )
 
 
-# def default_max_tokens(model: str) -> int:
-#     """
-#     Gets the default number of max tokens for the given model.
-#     :param model: The model name
-#     :return: The default number of max tokens
-#     """
-#     base = 1200
-#     if model in GPT_3_MODELS:
-#         return base
-#     elif model in GPT_4_MODELS:
-#         return base * 2
-#     elif model in GPT_3_16K_MODELS:
-#         if model == "gpt-3.5-turbo-1106":
-#             return 4096
-#         return base * 4
-#     elif model in GPT_4_32K_MODELS:
-#         return base * 8
-#     elif model in GPT_4_VISION_MODELS:
-#         return 4096
-#     elif model in GPT_4_128K_MODELS:
-#         return 4096
-#     elif model in GPT_4O_MODELS:
-#         return 4096
+def default_max_tokens(model: str) -> int:
+    """
+    Gets the default number of max tokens for the given model.
+    :param model: The model name
+    :return: The default number of max tokens
+    """
+    base = 1200
+    if model in GPT_3_MODELS:
+        return base
+    elif model in GPT_4_MODELS:
+        return base * 2
+    elif model in GPT_3_16K_MODELS:
+        if model == "gpt-3.5-turbo-1106":
+            return 4096
+        return base * 4
+    elif model in GPT_4_32K_MODELS:
+        return base * 8
+    # elif model in GPT_4_VISION_MODELS:
+    #     return 4096
+    elif model in GPT_4_128K_MODELS:
+        return 4096
+    elif model in GPT_4O_MODELS:
+        return 4096
 
 
-# def are_functions_available(model: str) -> bool:
-#     """
-#     Whether the given model supports functions
-#     """
-#     # Deprecated models
-#     if model in ("gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"):
-#         return False
-#     # Stable models will be updated to support functions on June 27, 2023
-#     if model in (
-#         "gpt-3.5-turbo",
-#         "gpt-3.5-turbo-1106",
-#         "gpt-4",
-#         "gpt-4-32k",
-#         "gpt-4-1106-preview",
-#         "gpt-4-0125-preview",
-#         "gpt-4-turbo-preview",
-#     ):
-#         return datetime.date.today() > datetime.date(2023, 6, 27)
-#     # Models gpt-3.5-turbo-0613 and  gpt-3.5-turbo-16k-0613 will be deprecated on June 13, 2024
-#     if model in ("gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k-0613"):
-#         return datetime.date.today() < datetime.date(2024, 6, 13)
-#     if model == "gpt-4-vision-preview":
-#         return False
-#     return True
+def are_functions_available(model: str) -> bool:
+    """
+    Whether the given model supports functions
+    """
+    # Deprecated models
+    if model in ("gpt-3.5-turbo-0301", "gpt-4-0314", "gpt-4-32k-0314"):
+        return False
+    # Stable models will be updated to support functions on June 27, 2023
+    if model in (
+        "gpt-3.5-turbo",
+        "gpt-3.5-turbo-1106",
+        "gpt-4",
+        "gpt-4-32k",
+        "gpt-4-1106-preview",
+        "gpt-4-0125-preview",
+        "gpt-4-turbo-preview",
+    ):
+        return datetime.date.today() > datetime.date(2023, 6, 27)
+    # Models gpt-3.5-turbo-0613 and  gpt-3.5-turbo-16k-0613 will be deprecated on June 13, 2024
+    if model in ("gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k-0613"):
+        return datetime.date.today() < datetime.date(2024, 6, 13)
+    if model == "gpt-4-vision-preview":
+        return False
+    return True
 
 
-# # Load translations
-# parent_dir_path = os.path.join(os.path.dirname(__file__), os.pardir)
-# translations_file_path = os.path.join(parent_dir_path, "translations.json")
-# with open(translations_file_path, "r", encoding="utf-8") as f:
-#     translations = json.load(f)
+# Load translations
+parent_dir_path = os.path.join(os.path.dirname(__file__), os.pardir)
+translations_file_path = os.path.join(parent_dir_path, "command_messages.json")
+with open(translations_file_path, "r", encoding="utf-8") as f:
+    translations = json.load(f)
 
 
-# def localized_text(key, bot_language):
-#     """
-#     Return translated text for a key in specified bot_language.
-#     Keys and translations can be found in the translations.json.
-#     """
-#     try:
-#         return translations[bot_language][key]
-#     except KeyError:
-#         logging.warning(
-#             f"No translation available for bot_language code '{bot_language}' and key '{key}'"
-#         )
-#         # Fallback to English if the translation is not available
-#         if key in translations["en"]:
-#             return translations["en"][key]
-#         else:
-#             logging.warning(
-#                 f"No english definition found for key '{key}' in translations.json"
-#             )
-#             # return key as text
-#             return key
+def localized_text(key, bot_language):
+    """
+    Return translated text for a key in specified bot_language.
+    Keys and translations can be found in the translations.json.
+    """
+    try:
+        return translations[bot_language][key]
+    except KeyError:
+        logging.warning(
+            f"No translation available for bot_language code '{bot_language}' and key '{key}'"
+        )
+        # Fallback to English if the translation is not available
+        if key in translations["en"]:
+            return translations["en"][key]
+        else:
+            logging.warning(
+                f"No english definition found for key '{key}' in translations.json"
+            )
+            # return key as text
+            return key
 
 
 class OpenAIHelper:
@@ -208,7 +209,7 @@ class OpenAIHelper:
         # elif show_plugins_used:
         #     answer += f"\n\n---\n🔌 {', '.join(plugin_names)}"
         if show_plugins_used:
-            answer += f"\n\n---\n🔌 {', '.join(plugin_names)}"
+            answer += f"\n\n---\n{'Plugin: '} {', '.join(plugin_names)}"
 
         return answer, response.usage.total_tokens
 
@@ -239,7 +240,7 @@ class OpenAIHelper:
                 yield answer, "not_finished"
         answer = answer.strip()
         self.__add_to_history(chat_id, role="assistant", content=answer)
-        tokens_used = str(self.__count_tokens(self.conversations[chat_id]))
+        # tokens_used = str(self.__count_tokens(self.conversations[chat_id]))
 
         show_plugins_used = len(plugins_used) > 0 and self.config["show_plugins_used"]
         plugin_names = tuple(
@@ -248,9 +249,10 @@ class OpenAIHelper:
         )
 
         if show_plugins_used:
-            answer += f"\n\n---\n🔌 {', '.join(plugin_names)}"
+            answer += f"\n\n---\n{'Plugin: '} {', '.join(plugin_names)}"
 
-        yield answer, tokens_used
+        # yield answer, tokens_used
+        yield answer, 0
 
     @retry(
         reraise=True,
@@ -265,6 +267,7 @@ class OpenAIHelper:
         :param query: The query to send to the model
         :return: The answer from the model and the number of tokens used
         """
+        bot_language = self.config["bot_language"]
         try:
             if chat_id not in self.conversations or self.__max_age_reached(chat_id):
                 self.reset_chat_history(chat_id)
@@ -274,33 +277,33 @@ class OpenAIHelper:
             self.__add_to_history(chat_id, role="user", content=query)
 
             # Summarize the chat history if it's too long to avoid excessive token usage
-            token_count = self.__count_tokens(self.conversations[chat_id])
-            exceeded_max_tokens = (
-                token_count + self.config["max_tokens"] > self.__max_model_tokens()
-            )
-            exceeded_max_history_size = (
-                len(self.conversations[chat_id]) > self.config["max_history_size"]
-            )
+            # token_count = self.__count_tokens(self.conversations[chat_id])
+            # exceeded_max_tokens = (
+            #     token_count + self.config["max_tokens"] > self.__max_model_tokens()
+            # )
+            # exceeded_max_history_size = (
+            #     len(self.conversations[chat_id]) > self.config["max_history_size"]
+            # )
 
-            if exceeded_max_tokens or exceeded_max_history_size:
-                logging.info(
-                    f"Chat history for chat ID {chat_id} is too long. Summarising..."
-                )
-                try:
-                    summary = await self.__summarise(self.conversations[chat_id][:-1])
-                    logging.debug(f"Summary: {summary}")
-                    self.reset_chat_history(
-                        chat_id, self.conversations[chat_id][0]["content"]
-                    )
-                    self.__add_to_history(chat_id, role="assistant", content=summary)
-                    self.__add_to_history(chat_id, role="user", content=query)
-                except Exception as e:
-                    logging.warning(
-                        f"Error while summarising chat history: {str(e)}. Popping elements instead..."
-                    )
-                    self.conversations[chat_id] = self.conversations[chat_id][
-                        -self.config["max_history_size"] :
-                    ]
+            # if exceeded_max_tokens or exceeded_max_history_size:
+            #     logging.info(
+            #         f"Chat history for chat ID {chat_id} is too long. Summarising..."
+            #     )
+            #     try:
+            #         summary = await self.__summarise(self.conversations[chat_id][:-1])
+            #         logging.debug(f"Summary: {summary}")
+            #         self.reset_chat_history(
+            #             chat_id, self.conversations[chat_id][0]["content"]
+            #         )
+            #         self.__add_to_history(chat_id, role="assistant", content=summary)
+            #         self.__add_to_history(chat_id, role="user", content=query)
+            #     except Exception as e:
+            #         logging.warning(
+            #             f"Error while summarising chat history: {str(e)}. Popping elements instead..."
+            #         )
+            #         self.conversations[chat_id] = self.conversations[chat_id][
+            #             -self.config["max_history_size"] :
+            #         ]
             # https://platform.openai.com/docs/api-reference/chat/create
             common_args = {
                 "model": self.config["model"],
@@ -325,6 +328,15 @@ class OpenAIHelper:
 
         except openai.RateLimitError as e:
             raise e
+        except openai.BadRequestError as e:
+            raise Exception(
+                f"⚠️ _{localized_text('openai_invalid', bot_language)}._ ⚠️\n{str(e)}"
+            ) from e
+
+        except Exception as e:
+            raise Exception(
+                f"⚠️ _{localized_text('error', bot_language)}._ ⚠️\n{str(e)}"
+            ) from e
 
     async def __handle_function_call(
         self, chat_id, response, stream=False, times=0, plugins_used=()
@@ -386,8 +398,8 @@ class OpenAIHelper:
         response = await self.client.chat.completions.create(
             model=self.config["model"],
             messages=self.conversations[chat_id],
-            functions=self.plugin_manager.get_functions_specs(),
-            function_call=(
+            tools=self.plugin_manager.get_functions_specs(),
+            tool_choice=(
                 "auto"
                 if times < self.config["functions_max_consecutive_calls"]
                 else "none"
