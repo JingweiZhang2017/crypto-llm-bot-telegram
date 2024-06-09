@@ -53,12 +53,12 @@ class PluginManager:
         return plugin.get_source_name()
 
     def __get_plugin_by_function_name(self, function_name):
+
         return next(
             (
                 plugin
                 for plugin in self.plugins
-                if function_name
-                in map(lambda spec: spec.get("name"), plugin.get_spec())
+                if function_name in plugin.get_spec()["function"]["name"]
             ),
             None,
         )

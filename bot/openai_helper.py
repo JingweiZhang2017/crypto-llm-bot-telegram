@@ -343,41 +343,49 @@ class OpenAIHelper:
     ):
         function_name = ""
         arguments = ""
-        if stream:
-            async for item in response:
-                if len(item.choices) > 0:
-                    first_choice = item.choices[0]
-                    if first_choice.delta and first_choice.delta.function_call:
-                        if first_choice.delta.function_call.name:
-                            function_name += first_choice.delta.function_call.name
-                        if first_choice.delta.function_call.arguments:
-                            arguments += first_choice.delta.function_call.arguments
-                    elif (
-                        first_choice.finish_reason
-                        and first_choice.finish_reason == "function_call"
-                    ):
-                        break
-                    else:
-                        return response, plugins_used
-                else:
-                    return response, plugins_used
-        else:
-            if len(response.choices) > 0:
-                first_choice = response.choices[0]
-                if first_choice.message.function_call:
-                    if first_choice.message.function_call.name:
-                        function_name += first_choice.message.function_call.name
-                    if first_choice.message.function_call.arguments:
-                        arguments += first_choice.message.function_call.arguments
-                else:
-                    return response, plugins_used
+        # if stream:
+        #     async for chunk in response:
+        #         if len(chunk.choices) > 0:
+        #             first_choice = chunk.choices[0]
+        #             print(chunk.choices[0].delta.content)
+        #             tool_calls = first_choice.delta.tool_calls
+        #             if tool_calls:
+        #                 tool_call_id = tool_calls[0].id
+        #                 print(tool_call_id)
+        #                 if tool_calls[0].function.name:
+        #                     function_name += tool_calls[0].function.name
+        #                 if tool_calls[0].function.arguments:
+        #                     arguments += tool_calls[0].function.arguments
+        #                     print(arguments)
+        #             elif (
+        #                 first_choice.finish_reason
+        #                 and first_choice.finish_reason == "function_call"
+        #             ):
+        #                 break
+        #             else:
+        #                 return response, plugins_used
+        #         else:
+        #             return response, plugins_used
+        # else:
+        if len(response.choices) > 0:
+            first_choice = response.choices[0].message
+            tool_calls = first_choice.tool_calls
+            if tool_calls:
+                # tool_call_id = tool_calls[0].id
+                if tool_calls[0].function.name:
+                    function_name += tool_calls[0].function.name
+                if tool_calls[0].function.arguments:
+                    arguments += tool_calls[0].function.arguments
             else:
                 return response, plugins_used
-
+        else:
+            return response, plugins_used
+        print(function_name)
         logging.info(f"Calling function {function_name} with arguments {arguments}")
         function_response = await self.plugin_manager.call_function(
             function_name, self, arguments
         )
+        print(function_response)
 
         if function_name not in plugins_used:
             plugins_used += (function_name,)
