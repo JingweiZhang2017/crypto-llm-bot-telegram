@@ -1,5 +1,6 @@
 import json
 from plugins.coincap_rate import CryptoPlugin
+from plugins.eodhd import EodHDPlugin
 
 
 class PluginManager:
@@ -11,6 +12,7 @@ class PluginManager:
         enabled_plugins = config.get("plugins", [])
         plugin_mapping = {
             "coincap": CryptoPlugin,
+            "eodhd": EodHDPlugin,
         }
         self.plugins = [
             plugin_mapping[plugin]()
