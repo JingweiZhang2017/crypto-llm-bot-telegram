@@ -209,7 +209,7 @@ class OpenAIHelper:
         # elif show_plugins_used:
         #     answer += f"\n\n---\n🔌 {', '.join(plugin_names)}"
         if show_plugins_used:
-            answer += f"\n\n---\n{'Plugin: '} {', '.join(plugin_names)}"
+            answer += f"\n\n---\n{'Source: '} {', '.join(plugin_names)}"
 
         return answer, response.usage.total_tokens
 

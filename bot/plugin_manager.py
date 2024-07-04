@@ -1,6 +1,7 @@
 import json
 from plugins.coincap_rate import CryptoPlugin
 from plugins.eodhd import EodHDPlugin
+from plugins.daily_signal import SignalPlugin
 
 
 class PluginManager:
@@ -13,6 +14,7 @@ class PluginManager:
         plugin_mapping = {
             "coincap": CryptoPlugin,
             "eodhd": EodHDPlugin,
+            "signals": SignalPlugin,
         }
         self.plugins = [
             plugin_mapping[plugin]()
@@ -30,7 +32,7 @@ class PluginManager:
         # for spec in specs
         # ]
         specs = [plugin.get_spec() for plugin in self.plugins]
-        print(specs)
+        # print(specs)
         return specs
 
     async def call_function(self, function_name, helper, arguments):

@@ -19,7 +19,7 @@ class EodHDPlugin(Plugin):
         self.app_id = eod_historical_app_id
 
     def get_source_name(self) -> str:
-        return "EODHD APIs (https://eodhd.com)"
+        return "EODHD APIs"
 
     def get_spec(self) -> Dict:
         return {
